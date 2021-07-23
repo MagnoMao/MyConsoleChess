@@ -1,4 +1,7 @@
-﻿namespace MyConsoleChess.BoardNS
+﻿using MyConsoleChess.BoardNS.Enums;
+using MyConsoleChess.ChessNS.Enums;
+
+namespace MyConsoleChess.BoardNS
 {
     abstract class Piece
     {
@@ -14,15 +17,19 @@
             Color = color;
             Board = board;
         }
+
+        //public Piece(char collum, int row, Color color, Board board)
+        //{
+        //}
         /// <summary>
         /// This methold will be abstract, but for testing purpose is virtual for now
         /// </summary>
         /// <param name="pieces"></param>
         /// <param name="currentPlayer"></param>
         /// <returns></returns>
-        public virtual bool[,] PossibleMovements(Piece[,] pieces, Color currentPlayer)
+        public virtual Moves[,] PossibleMovements(Piece[,] pieces, Color currentPlayer)
         {
-            bool[,] mat =  new bool[2,2];
+            Moves[,] mat =  new Moves[2,2];
             return mat;
         }
     }

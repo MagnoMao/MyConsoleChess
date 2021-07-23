@@ -1,4 +1,6 @@
 ﻿using MyConsoleChess.BoardNS;
+using MyConsoleChess.BoardNS.Enums;
+using MyConsoleChess.ChessNS.Enums;
 
 namespace MyConsoleChess.ChessNS
 {
@@ -9,38 +11,49 @@ namespace MyConsoleChess.ChessNS
         {
         }
 
-        public override bool[,] PossibleMovements(Piece[,] pieces, Color currentPlayer)
+        public override Moves[,] PossibleMovements(Piece[,] pieces, Color currentPlayer)
         {
             int rows = pieces.GetLength(0);
             int collums = pieces.GetLength(1);
-            bool[,] possibleMovements = new bool[rows, collums];            
+            Moves[,] possibleMovements = new Moves[rows, collums];            
             for (var i = 0; i < rows; i++)
             {
                 for (var j = 0; j < collums; j++)
                 {
-                    possibleMovements[i, j] = false;
+                    possibleMovements[i, j] = Moves.None;
                 }
             }
 
+            //Takes into accout if the pawn is moving up (white piece) out moving down (black piece)
             int dir = 0;
             if (Color == Color.White) dir = - 1;  // Pawn is moving up
             else dir = 1;                      // Pawn is moving down
+
+
             //Move foward
-            if (Row + dir >= 0 && pieces[Row + dir, Collum] == null)
+            var forwardRow = Row + dir;
+            if (Board.ValidPos(forwardRow, Collum) && pieces[forwardRow, Collum] == null)
             {
-                possibleMovements[Row + dir, Collum] = true;
+                possibleMovements[Row + dir, Collum] = Moves.Move;
                 //Move foward 2 tiles if not moved
                 if (!Moved)
                 {
-                    if (Row + 2 * dir >= 0 && pieces[Row + 2 * dir, Collum] == null) possibleMovements[Row + 2 * dir, Collum] = true;
+                    int twoFowardRow = forwardRow + dir;
+                    if (Board.ValidPos(twoFowardRow, Collum) && pieces[twoFowardRow, Collum] == null) possibleMovements[twoFowardRow, Collum] = Moves.Move;
                 }
             }
-            
-            //Move foward diagonally if there is a piece to capture
-            if (Row + dir >= 0 && Collum - 1 >=0 
-                && pieces[Row + dir, Collum - 1] != null && pieces[Row + dir, Collum - 1].Color != currentPlayer) possibleMovements[Row + dir, Collum - 1] = true;
-            if (Row + dir >= 0 && Collum + 1 < collums 
-                && pieces[Row + dir, Collum + 1] != null && pieces[Row + dir, Collum + 1].Color != currentPlayer) possibleMovements[Row + dir, Collum + 1] = true;
+
+            //Capture diagonally
+            int leftCollum = Collum - 1;
+            if (Board.ValidPos(forwardRow, leftCollum)) {
+                if (pieces[forwardRow, leftCollum] != null && pieces[forwardRow, leftCollum].Color != currentPlayer) possibleMovements[forwardRow, leftCollum] = Moves.Capture;
+            }
+
+            int rightCollum = Collum + 1;
+            if (Board.ValidPos(forwardRow, rightCollum))
+            {
+                if (pieces[forwardRow, rightCollum] != null && pieces[forwardRow, rightCollum].Color != currentPlayer) possibleMovements[forwardRow, rightCollum] = Moves.Capture;
+            }
 
             return possibleMovements;
         }

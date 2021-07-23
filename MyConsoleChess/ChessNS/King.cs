@@ -1,4 +1,6 @@
 ﻿using MyConsoleChess.BoardNS;
+using MyConsoleChess.BoardNS.Enums;
+using MyConsoleChess.ChessNS.Enums;
 using System;
 
 namespace MyConsoleChess.ChessNS
@@ -9,30 +11,36 @@ namespace MyConsoleChess.ChessNS
         {
         }
 
-        public override bool[,] PossibleMovements(Piece[,] pieces, Color currentPlayer)
+        public override Moves[,] PossibleMovements(Piece[,] pieces, Color currentPlayer)
         {
             int rows = pieces.GetLength(0);
             int collums = pieces.GetLength(1);
-            bool[,] possibleMovements = new bool[rows, collums];
+            Moves[,] possibleMovements = new Moves[rows, collums];
             for (var i = 0; i < rows; i++)
             {
                 for (var j = 0; j < collums; j++)
                 {
-                    possibleMovements[i, j] = false;
+                    possibleMovements[i, j] = Moves.None;
                 }
             }
-
-            for(int a = 0; a < 360; a += 45)
+            
+            //Check every Tile near the king
+            for (double a = 0; a < 2 * Math.PI; a += Math.PI / 4.0)
             {
-                int i, j;
-                i = Row; j = Collum + 1;
-                if(Board.ValidPos(Row, Collum))
-                {
-                    if(pieces[i,j] == null) 
-                }
+                int i = Row + (int)Math.Round(Math.Cos(a));
+                int j = Collum + (int)Math.Round(Math.Sin(a));
+                if (!Board.ValidPos(i, j)) continue;
+                if (pieces[i, j] == null) possibleMovements[i, j] = Moves.Move;
+                else if(pieces[i,j].Color == Color.Black) possibleMovements[i, j] = Moves.Capture;
             }
+            //Right
+            //if (Board.ValidPos(Row, Collum + 1))
+            //{
+            //    if (pieces[Row, Collum + 1] == null) possibleMovements[Row, Collum + 1] = Moves.Move;
+            //    else if(pieces[Row,Collum + 1].Color == Color.Black) possibleMovements[Row, Collum + 1] = Moves.Capture;
+            //}
 
-            return base.PossibleMovements(pieces, currentPlayer);
+            return possibleMovements;
         }
         public override string ToString()
         {

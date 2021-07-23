@@ -1,4 +1,6 @@
 ﻿using System;
+using MyConsoleChess.BoardNS.Enums;
+using MyConsoleChess.ChessNS.Enums;
 
 namespace MyConsoleChess.BoardNS
 {
@@ -56,7 +58,7 @@ namespace MyConsoleChess.BoardNS
                     {
                         if(Pieces[i, j].Color != Color.White)
                         {
-                            PrintStringColor(Pieces[i, j], ConsoleColor.Yellow);
+                            PrintPieceColor(Pieces[i, j], ConsoleColor.Yellow);
                         }
                         else Console.Write(Pieces[i, j] + " ");
                     }
@@ -68,7 +70,7 @@ namespace MyConsoleChess.BoardNS
             //Print the cood at the BOTTOM of the board
             PrintBoardCoordChar();
         }
-        public void PrintMovements(bool [,] possibleMovements, Piece piece)
+        public void PrintMovements(Moves[,] possibleMovements, Piece piece)
         {
             //Print the coord at the TOP of the board
             PrintBoardCoordChar();
@@ -81,24 +83,27 @@ namespace MyConsoleChess.BoardNS
                     //The piece that is current selected
                     if(i == piece.Row && j == piece.Collum)
                     {
-                        PrintStringColor(Pieces[i, j], ConsoleColor.Green);
+                        PrintPieceColor(Pieces[i, j], ConsoleColor.Green);
                         continue;
                     }
                     //Piece can move to this location
-                    if (possibleMovements[i, j])
-                    {
-                        if (Pieces[i, j] != null) PrintStringColor(Pieces[i, j], ConsoleColor.Red);
-                        else Console.Write("X ");//(char)178
+                    if (possibleMovements[i, j] == Moves.Move) {
+                        Console.Write("X ");//(char)178
                         continue;
                     }
-                    if (Pieces[i, j] == null) Console.Write("- ");
-                    else
+                    if (possibleMovements[i, j] == Moves.Capture)
                     {
-                        if (Pieces[i, j].Color != Color.White)
+                        PrintPieceColor(Pieces[i, j], ConsoleColor.Red);
+                        continue;
+                    }
+                    if (possibleMovements[i, j] == Moves.None)
+                    {
+                        if (Pieces[i, j] == null) Console.Write("- ");
+                        else if (Pieces[i, j].Color != Color.White)
                         {
-                            PrintStringColor(Pieces[i,j],ConsoleColor.Yellow);                            
+                            PrintPieceColor(Pieces[i, j], ConsoleColor.Yellow);
                         }
-                        else Console.Write(Pieces[i, j] + " ");
+                        else PrintPieceColor(Pieces[i, j], ConsoleColor.White);
                     }
                 }
                 //Print the coord at the RIGHT side of the board
@@ -113,7 +118,7 @@ namespace MyConsoleChess.BoardNS
         /// </summary>
         /// <param name="piece"></param>
         /// <param name="color"></param>
-        private void PrintStringColor(Piece piece, ConsoleColor color)
+        private void PrintPieceColor(Piece piece, ConsoleColor color)
         {
             ConsoleColor c = Console.ForegroundColor;
             Console.ForegroundColor = color;

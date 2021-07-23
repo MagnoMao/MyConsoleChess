@@ -1,4 +1,4 @@
-﻿namespace MyConsoleChess.BoardNS
+﻿namespace MyConsoleChess.BoardNS.Enums
 {
     enum Color
     {

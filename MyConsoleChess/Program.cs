@@ -1,6 +1,9 @@
 ﻿using System;
 using MyConsoleChess.BoardNS;
+using MyConsoleChess.BoardNS.Enums;
 using MyConsoleChess.ChessNS;
+using MyConsoleChess.ChessNS.Enums;
+
 
 namespace MyConsoleChess
 {
@@ -14,12 +17,13 @@ namespace MyConsoleChess
             chessMatch.InitBoard();
             while (!matchFinished)
             {
-                board.AddPiece(new Knight(5, 0, Color.Black));
-                board.AddPiece(new Knight(5, 1, Color.Black));
+                board.AddPiece(new Knight(5, 0, Color.Black,board));
+                board.AddPiece(new Knight(5, 1, Color.Black,board));
+                board.AddPiece(new King(2,3, Color.White, board));
                 board.Print();
                 Console.WriteLine("\nCurrent player: " + chessMatch.CurrentPlayer);
                 Piece pieceToMove = chessMatch.GetPieceToMove();
-                bool[,] possibleMovements = pieceToMove.PossibleMovements(board.Pieces, chessMatch.CurrentPlayer);
+                Moves[,] possibleMovements = pieceToMove.PossibleMovements(board.Pieces, chessMatch.CurrentPlayer);
                 
                 Console.Clear();
                 board.PrintMovements(possibleMovements, pieceToMove);

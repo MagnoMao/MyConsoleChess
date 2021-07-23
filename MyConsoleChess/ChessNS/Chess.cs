@@ -1,5 +1,6 @@
 ﻿using System;
 using MyConsoleChess.BoardNS;
+using MyConsoleChess.BoardNS.Enums;
 
 namespace MyConsoleChess.ChessNS
 {
