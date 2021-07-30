@@ -12,25 +12,32 @@ namespace MyConsoleChess.BoardNS
 
         public Piece( int row, int collum, Color color, Board board)
         {
+            if (!board.ValidPos(row, collum)) throw new BoardException("Position out of bounds.");
             Collum = collum;
             Row = row;
             Color = color;
             Board = board;
         }
 
-        //public Piece(char collum, int row, Color color, Board board)
-        //{
-        //}
-        /// <summary>
-        /// This methold will be abstract, but for testing purpose is virtual for now
-        /// </summary>
-        /// <param name="pieces"></param>
-        /// <param name="currentPlayer"></param>
-        /// <returns></returns>
-        public virtual Moves[,] PossibleMovements(Piece[,] pieces, Color currentPlayer)
+        public Piece(char collum, int row, Color color, Board board)
         {
-            Moves[,] mat =  new Moves[2,2];
-            return mat;
+            Color = color;
+            Board = board;
+            int[] coords = Board.PosConverter(collum + ""+ row );
+            if(coords == null) throw new BoardException("Position out of bounds.");
+            Row = coords[0];
+            Collum = coords[1];
+        }
+        public abstract Moves[,] PossibleMovements(Piece[,] pieces);
+        public virtual bool MoveToLocation(int row, int collum, Moves[,] possibleMovements)
+        {
+            if (possibleMovements[row, collum] != Moves.None)
+            {
+                Row = row;
+                Collum = collum;
+                return true;
+            }
+            return false;
         }
     }
 }

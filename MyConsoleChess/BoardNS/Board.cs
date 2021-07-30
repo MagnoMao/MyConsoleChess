@@ -24,11 +24,102 @@ namespace MyConsoleChess.BoardNS
         /// <returns></returns>
         public bool ValidPos(int row, int collum)
         {
-            return row > 0 && row < Rows && collum > 0 && collum < Collums;
+            return row >= 0 && row < Rows && collum >= 0 && collum < Collums;
+        }
+        public int[] PosConverter(string boardCoord)
+        {
+            //Receives a Board coord in string (ex: a2, b5) and convert it to the matrix coord
+            //(ex: a2 - > (6,0); b5 -> (3,1))
+
+            //Convert the char to a numeral collum and properly identify who is the Row and who is the collum
+            int boardCollum = char.ToLower(boardCoord[0]) - 'a';
+            int boardRow = int.Parse(boardCoord[1].ToString());
+
+            //Convert the char 
+            int matrixRow = Rows - boardRow;
+            int matrixCollum = boardCollum;
+
+            //Validate the coordinates according to board size.
+            if (ValidPos(matrixRow, matrixCollum))
+            {
+                int[] pos = new int[] { matrixRow, matrixCollum };
+                return pos;
+            }
+            else return null;
+
+            
         }
         public void AddPiece(Piece p)
         {
             Pieces[p.Row, p.Collum] = p;
+        }
+        public int[] GetCoordinates()
+        {
+            while (true)
+            {
+                string boardCoord = Console.ReadLine();
+                if (boardCoord == "") return null;
+
+                int[] coordinates = PosConverter(boardCoord);
+                if (coordinates != null) return coordinates;
+                else Console.WriteLine("Coordinate out of bounds");
+            }
+        }
+        /// <summary>
+        /// Ask for input and get the piece
+        /// </summary>
+        /// <returns></returns>
+        public Piece GetPiece()
+        {
+            while (true)
+            {
+                int[] coordinates = GetCoordinates();
+                if (coordinates == null) return null;
+                int row = coordinates[0];
+                int collum = coordinates[1];
+                //Validate the input
+                if (Pieces[row, collum] == null)
+                {
+                    Console.WriteLine("There is no piece in this location");
+                }
+                else return Pieces[row, collum];
+            }
+        }
+        public Piece GetPiece(int row, int collum)
+        {
+            //Validate the input
+            if (Pieces[row, collum] == null)    throw new BoardException("There is no piece in this location");
+            else return Pieces[row, collum];
+        }
+        /// <summary>
+        /// Ask for input and get a piece that current player owns
+        /// </summary>
+        /// <param name="currentPlayer"></param>
+        /// <returns></returns>
+        public Piece GetPieceToMove(Color currentPlayer)
+        {
+            while (true)
+            {
+                Piece piece = GetPiece();
+                if (piece == null) return null;
+                if (piece.Color != currentPlayer)
+                {
+                    Console.WriteLine("This piece isn't yours to move.");
+                }
+                else return piece;
+            }
+        }
+        public bool MovePiece(Piece piece, int row, int collum, Moves[,] possibleMovements)
+        {
+            int originalRow = piece.Row;
+            int originalCollum = piece.Collum;
+            if (piece.MoveToLocation(row, collum, possibleMovements))
+            {
+                Pieces[originalRow, originalCollum] = null;
+                Pieces[row, collum] = piece;
+                return true;
+            }
+            return false;
         }
         public void Clear()
         {
@@ -39,101 +130,6 @@ namespace MyConsoleChess.BoardNS
                     Pieces[i, j] = null;
                 }
             }
-        }
-        /// <summary>
-        /// Print the board 
-        /// </summary>
-        public void Print()
-        {
-            //Print the coord at the TOP of the board
-            PrintBoardCoordChar();
-            for (int i = 0; i < Rows; i++)
-            {
-                //Print the coord at the LEFT side of the board
-                Console.Write(Rows - i + " ");
-                for (int j = 0; j < Collums; j++)
-                {
-                    if (Pieces[i, j] == null) Console.Write("- ");
-                    else
-                    {
-                        if(Pieces[i, j].Color != Color.White)
-                        {
-                            PrintPieceColor(Pieces[i, j], ConsoleColor.Yellow);
-                        }
-                        else Console.Write(Pieces[i, j] + " ");
-                    }
-                }
-                //Print the coord at the RIGHT side of the board
-                Console.Write(Rows - i + " ");
-                Console.WriteLine();
-            }
-            //Print the cood at the BOTTOM of the board
-            PrintBoardCoordChar();
-        }
-        public void PrintMovements(Moves[,] possibleMovements, Piece piece)
-        {
-            //Print the coord at the TOP of the board
-            PrintBoardCoordChar();
-            for (int i = 0; i < Rows; i++)
-            {
-                //Print the coord at the LEFT side of the board
-                Console.Write(Rows - i + " ");
-                for (int j = 0; j < Collums; j++)
-                {
-                    //The piece that is current selected
-                    if(i == piece.Row && j == piece.Collum)
-                    {
-                        PrintPieceColor(Pieces[i, j], ConsoleColor.Green);
-                        continue;
-                    }
-                    //Piece can move to this location
-                    if (possibleMovements[i, j] == Moves.Move) {
-                        Console.Write("X ");//(char)178
-                        continue;
-                    }
-                    if (possibleMovements[i, j] == Moves.Capture)
-                    {
-                        PrintPieceColor(Pieces[i, j], ConsoleColor.Red);
-                        continue;
-                    }
-                    if (possibleMovements[i, j] == Moves.None)
-                    {
-                        if (Pieces[i, j] == null) Console.Write("- ");
-                        else if (Pieces[i, j].Color != Color.White)
-                        {
-                            PrintPieceColor(Pieces[i, j], ConsoleColor.Yellow);
-                        }
-                        else PrintPieceColor(Pieces[i, j], ConsoleColor.White);
-                    }
-                }
-                //Print the coord at the RIGHT side of the board
-                Console.Write(Rows - i + " ");
-                Console.WriteLine();
-            }
-            //Print the cood at the BOTTOM of the board
-            PrintBoardCoordChar();
-        }
-        /// <summary>
-        /// Print a string with a different color
-        /// </summary>
-        /// <param name="piece"></param>
-        /// <param name="color"></param>
-        private void PrintPieceColor(Piece piece, ConsoleColor color)
-        {
-            ConsoleColor c = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.Write(piece + " ");
-            Console.ForegroundColor = c;
-        }
-        private void PrintBoardCoordChar()
-        {
-            Console.Write("  ");
-            for (int i = 0; i < Collums; i++)
-            {
-                char ch = (char)('A' + i);
-                Console.Write(ch + " ");
-            }
-            Console.WriteLine();
         }
     }
 

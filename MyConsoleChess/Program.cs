@@ -15,22 +15,44 @@ namespace MyConsoleChess
             Chess chessMatch = new Chess(board);
             bool matchFinished = false;
             chessMatch.InitBoard();
+            board.AddPiece(new King('d', 4, Color.Black, board));
             while (!matchFinished)
             {
-                board.AddPiece(new Knight(5, 0, Color.Black,board));
-                board.AddPiece(new Knight(5, 1, Color.Black,board));
-                board.AddPiece(new King(2,3, Color.White, board));
-                board.Print();
-                Console.WriteLine("\nCurrent player: " + chessMatch.CurrentPlayer);
-                Piece pieceToMove = chessMatch.GetPieceToMove();
-                Moves[,] possibleMovements = pieceToMove.PossibleMovements(board.Pieces, chessMatch.CurrentPlayer);
-                
                 Console.Clear();
-                board.PrintMovements(possibleMovements, pieceToMove);
+                Print.PrintBoard(chessMatch);
+                Console.WriteLine("Origin: ");
+                Piece pieceToMove = board.GetPieceToMove(chessMatch.CurrentPlayer);
+                if (pieceToMove == null) continue;
+                Moves[,] possibleMovements = pieceToMove.PossibleMovements(board.Pieces);
 
-                Console.ReadLine();
+                Console.Clear();
+                Print.PrintBoard(chessMatch,pieceToMove, possibleMovements);
+                bool moved = false;
+                Console.Write("Target: ");
+                while (!moved)
+                {
+                    int[] moveCoord = board.GetCoordinates();
+                    if (moveCoord == null) break; // This is how you unselect a piece, simply enter a empty coordinate
+                    if (possibleMovements[moveCoord[0], moveCoord[1]] != Moves.None) {
+                        Piece pieceAtTargetLocation = null;
+                        if (board.Pieces[moveCoord[0], moveCoord[1]] != null) pieceAtTargetLocation = board.Pieces[moveCoord[0], moveCoord[1]];
+                        moved = chessMatch.MovePiece(pieceToMove, moveCoord[0], moveCoord[1], possibleMovements);
+                        //add piece to chess.capturedPieceWhite or black
+                        if (moved)
+                        {
+                            if (pieceAtTargetLocation != null)
+                            {
+                                if (pieceAtTargetLocation.Color == Color.White)
+                                    chessMatch.WhitePiecesCaptured.Add(pieceAtTargetLocation);
+                                else chessMatch.BlackPiecesCaptured.Add(pieceAtTargetLocation);
+                            }
+                            if (chessMatch.CurrentPlayer == Color.White) chessMatch.CurrentPlayer = Color.Black;
+                            else chessMatch.CurrentPlayer = Color.White;
+                        }
+                    }
+                    if (!moved) Console.WriteLine("Invalid position to move");
+                }
             }
-            //int[] coord = chessMatch.PosConverter(Console.ReadLine());
         }
     }
 }
