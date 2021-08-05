@@ -4,6 +4,7 @@
     {
         None,
         Move,
-        Capture
+        Capture,
+        Castle
     }
 }

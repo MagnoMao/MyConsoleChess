@@ -8,7 +8,7 @@ namespace MyConsoleChess.BoardNS
     {
         public int Rows { get; private set; }
         public int Collums { get; private set; }
-        public Piece[,] Pieces { get; private set; }
+        public Piece[,] Pieces;
 
         public Board(int rows, int collums)
         {
@@ -26,6 +26,11 @@ namespace MyConsoleChess.BoardNS
         {
             return row >= 0 && row < Rows && collum >= 0 && collum < Collums;
         }
+        /// <summary>
+        /// Convert the coordinate from board to matrix and return null if the coordinate is out of bounds.
+        /// </summary>
+        /// <param name="boardCoord"></param>
+        /// <returns></returns>
         public int[] PosConverter(string boardCoord)
         {
             //Receives a Board coord in string (ex: a2, b5) and convert it to the matrix coord
@@ -53,6 +58,12 @@ namespace MyConsoleChess.BoardNS
         {
             Pieces[p.Row, p.Collum] = p;
         }
+        /// <summary>
+        /// Get the coordinates from the user in Board system and convert it to matrix coord.
+        /// It also test if the coordinate is inside the bounds of the board.
+        /// Return null if no input was given.
+        /// </summary>
+        /// <returns></returns>
         public int[] GetCoordinates()
         {
             while (true)
@@ -109,17 +120,15 @@ namespace MyConsoleChess.BoardNS
                 else return piece;
             }
         }
-        public bool MovePiece(Piece piece, int row, int collum, Moves[,] possibleMovements)
+        public void MovePiece(Piece piece, int row, int collum)
         {
-            int originalRow = piece.Row;
-            int originalCollum = piece.Collum;
-            if (piece.MoveToLocation(row, collum, possibleMovements))
-            {
-                Pieces[originalRow, originalCollum] = null;
-                Pieces[row, collum] = piece;
-                return true;
-            }
-            return false;
+            Pieces[row, collum] = piece;
+            
+            // Before update the coordinates inside the piece I'll use it to clear the 
+            // tile where the piece was before moving
+            Pieces[piece.Row, piece.Collum] = null;
+
+            piece.Move(row, collum);
         }
         public void Clear()
         {

@@ -54,11 +54,17 @@ namespace MyConsoleChess
             if (chessMatch.CurrentPlayer == Color.Black) StringColor(chessMatch.CurrentPlayer + "\n", ConsoleColor.Yellow);
             else Console.WriteLine(chessMatch.CurrentPlayer);
         }
-        public static void PrintBoard(Chess chessMatch, Piece piece, Moves[,] possibleMovements)
+        /// <summary>
+        /// Print the board with the possible movements of the selected piece
+        /// </summary>
+        /// <param name="chessMatch"></param>
+        /// <param name="piece"></param>
+        public static void PrintBoard(Chess chessMatch, Piece piece)
         {
             int rows = chessMatch.Board.Rows;
             int collums = chessMatch.Board.Collums;
             Piece[,] pieces = chessMatch.Board.Pieces;
+            Moves[,] possibleMovements = piece.PossibleMovements();
             //Print the coord at the TOP of the board
             PrintBoardCoordChar(collums);
             for (int i = 0; i < rows; i++)
@@ -74,14 +80,15 @@ namespace MyConsoleChess
                         continue;
                     }
                     //Piece can move to this location
-                    if (possibleMovements[i, j] == Moves.Move)
+                    if (possibleMovements[i, j] == Moves.Move || possibleMovements[i,j] == Moves.Castle)
                     {
                         Console.Write("X ");//(char)178
                         continue;
                     }
                     if (possibleMovements[i, j] == Moves.Capture)
                     {
-                        PrintPieceColor(pieces[i, j], ConsoleColor.Red);
+                        if(pieces[i, j] == null) StringColor("X ", ConsoleColor.Red);
+                        else PrintPieceColor(pieces[i, j], ConsoleColor.Red);
                         continue;
                     }
                     if (possibleMovements[i, j] == Moves.None)
@@ -100,30 +107,30 @@ namespace MyConsoleChess
             }
             //Print the cood at the BOTTOM of the board
             PrintBoardCoordChar(collums);
-            Console.WriteLine("\nCaptured:");
-            PrintCaptured(chessMatch,Color.White);
-            PrintCaptured(chessMatch,Color.Black);
-            
-            Console.WriteLine();
-            if (chessMatch.WhiteInCheck) Console.WriteLine("White king is in check.");
+
+            if (chessMatch.WhiteInCheck) Console.WriteLine("\nWhite king is in check.");
             if (chessMatch.BlackInCheck)
             {
-                StringColor("Black", ConsoleColor.Yellow);
+                StringColor("\nBlack", ConsoleColor.Yellow);
                 Console.WriteLine(" king is in check.");
             }
 
-            Console.Write("Player turn: ");
+            Console.WriteLine("\nCaptured:");
+            PrintCaptured(chessMatch, Color.White);
+            PrintCaptured(chessMatch, Color.Black);
+
+            Console.Write("\nPlayer turn: ");
             if (chessMatch.CurrentPlayer == Color.Black) StringColor(chessMatch.CurrentPlayer + "\n", ConsoleColor.Yellow);
             else Console.WriteLine(chessMatch.CurrentPlayer);
         }
-        private static  void PrintCaptured(Chess chessMatch,Color color)
+        private static void PrintCaptured(Chess chessMatch,Color color)
         {
             if(color == Color.White)
             {
                 Console.Write("[");
                 foreach(Piece piece in chessMatch.WhitePiecesCaptured)
                 {
-                    Console.WriteLine(piece + " ");
+                    Console.Write(piece + " ");
                 }
                 Console.WriteLine("]");
             }
@@ -142,7 +149,7 @@ namespace MyConsoleChess
         /// </summary>
         /// <param name="str"></param>
         /// <param name="color"></param>
-        private static void StringColor(string str, ConsoleColor color)
+        public static void StringColor(string str, ConsoleColor color)
         {
             ConsoleColor c = Console.ForegroundColor;
             Console.ForegroundColor = color;

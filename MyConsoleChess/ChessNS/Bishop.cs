@@ -7,15 +7,17 @@ namespace MyConsoleChess.ChessNS
 {
     class Bishop : Piece
     {
-        public Bishop(int row,int collum, Color color, Board board) : base(row, collum, color, board)
+        public Bishop(int row,int collum, Color color, Chess chess) : base(row, collum, color, chess)
         {
         }
-        public Bishop(char collum, int row, Color color, Board board) : base(collum, row, color, board)
+        public Bishop(char collum, int row, Color color, Chess chess) : base(collum, row, color, chess)
         {
         }
 
-        public override Moves[,] PossibleMovements(Piece[,] pieces)
+        public override Moves[,] PossibleMovements()
         {
+            Piece[,] pieces = Chess.Board.Pieces;
+
             //Mat init
             int rows = pieces.GetLength(0);
             int collums = pieces.GetLength(1);
@@ -32,7 +34,7 @@ namespace MyConsoleChess.ChessNS
             {
                 int i = Row - (int)Math.Round(Math.Sin(a));
                 int j = Collum + (int)Math.Round(Math.Cos(a));
-                while (Board.ValidPos(i, j))
+                while (Chess.Board.ValidPos(i, j))
                 {
                     if (pieces[i, j] == null) possibleMovements[i, j] = Moves.Move;
                     else if (pieces[i, j].Color != Color)
